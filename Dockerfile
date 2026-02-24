@@ -20,6 +20,9 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN chown -R www-data:www-data .
-RUN chmod -R 775 storage bootstrap/cache
-RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chmod 1777 /tmp \
+ && mkdir -p storage/framework/{cache,sessions,views} \
+ && chown -R www-data:www-data storage bootstrap/cache \
+ && chmod -R 775 storage bootstrap/cache
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
