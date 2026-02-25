@@ -16,6 +16,8 @@ if [ -z "$APP_KEY" ]; then
   php artisan key:generate --force
 fi
 
+chmod -R 777 storage bootstrap/cache
+cp .env.example .env
 php artisan migrate --force
 php artisan db:seed --force
 
