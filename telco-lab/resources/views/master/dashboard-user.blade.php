@@ -86,7 +86,7 @@
 
                     <li class="nav-item">
                         <a class="nav-link text-white fw-semibold" href="#">
-                            Nama User
+                            Roni Mulya
                         </a>
                     </li>
                 </ul>
@@ -220,7 +220,7 @@
     </div>
     <!-- End Product Section -->
 
-    <!-- Start Why Choose Us Section -->
+    {{-- <!-- Start Why Choose Us Section -->
     <div class="why-choose-section">
         <div class="container">
             <div class="row justify-content-between">
@@ -551,13 +551,13 @@
             </div>
         </div>
     </div>
-    <!-- End Blog Section -->
+    <!-- End Blog Section --> --}}
 
     <!-- Start Footer Section -->
     <footer class="footer-section">
         <div class="container relative">
 
-            <div class="sofa-img">
+            {{-- <div class="sofa-img">
                 <img src="{{ asset('assets/images/sofa.png') }}" alt="Image" class="img-fluid">
             </div>
 
@@ -640,7 +640,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div> --}}
 
             <div class="border-top copyright">
                 <div class="row pt-4">
@@ -648,20 +648,16 @@
                         <p class="mb-2 text-center text-lg-start">Copyright &copy;
                             <script>
                                 document.write(new Date().getFullYear());
-                            </script>. All Rights Reserved. &mdash; Designed with love by <a
-                                href="https://untree.co">Untree.co</a> Distributed By <a
-                                hreff="https://themewagon.com">ThemeWagon</a>
-                            <!-- License information: https://untree.co/license/ -->
+                            </script>. All Rights Reserved. &mdash; Design modified by <a
+                                href="#">Hyperlink</a>
                         </p>
                     </div>
-
-                    <div class="col-lg-6 text-center text-lg-end">
+                    {{-- <div class="col-lg-6 text-center text-lg-end">
                         <ul class="list-unstyled d-inline-flex ms-auto">
                             <li class="me-4"><a href="#">Terms &amp; Conditions</a></li>
                             <li><a href="#">Privacy Policy</a></li>
                         </ul>
-                    </div>
-
+                    </div> --}}
                 </div>
             </div>
 
