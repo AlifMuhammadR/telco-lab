@@ -557,9 +557,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="view-more">
+                {{-- <div class="view-more">
                     <a href="#" class="btn-outline">Lihat Semua Penyedia <i class="fas fa-arrow-right"></i></a>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

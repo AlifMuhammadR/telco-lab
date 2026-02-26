@@ -11,7 +11,7 @@ class ResellerController extends Controller
      */
     public function index()
     {
-        return view('user.resellers-detail', [
+        return view('user.resellers', [
             'title' => 'Resellers'
         ]);
     }

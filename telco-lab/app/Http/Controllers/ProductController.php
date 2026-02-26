@@ -11,7 +11,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return view('user.products-detail', [
+        return view('user.products', [
             'title' => 'Products Detail'
         ]);
     }
