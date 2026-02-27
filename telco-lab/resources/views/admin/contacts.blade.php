@@ -3,6 +3,22 @@
     @include('master.navbar')
 @endsection
 @section('hero')
+    <style>
+        .hero .hero-img-wrap {
+            margin-top: -90px; /* atur sesuai kebutuhan */
+        }
+        /* Opsi alternatif jika ingin menggunakan transform */
+        /*
+        .hero .hero-img-wrap {
+            transform: translateY(-30px);
+        }
+        */
+        @media (max-width: 768px) {
+            .hero .hero-img-wrap {
+                margin-top: 0; /* reset untuk layar kecil */
+            }
+        }
+    </style>
     <!-- Start Hero Section -->
     <div class="hero">
         <div class="container">
@@ -18,7 +34,7 @@
                 </div>
                 <div class="col-lg-7">
                     <div class="hero-img-wrap">
-                        <img src="{{ asset('assets/images/cisco.png') }}" class="img-fluid hero-device">
+                        <img src="{{ asset('assets/images/rack.png') }}" class="img-fluid hero-device">
                     </div>
                 </div>
             </div>
