@@ -90,13 +90,13 @@
                     class="nav-item {{ request()->routeIs('resellers*') || request()->routeIs('admin.resellers*') ? 'active' : '' }}">
                     @auth
                         @if (Auth::user()->role === 'admin')
-                            <a class="nav-link" href="{{ route('admin.resellers.index') }}">Resellers</a>
+                            <a class="nav-link" href="{{ route('admin.resellers.index') }}">Companies</a>
                         @else
-                            <a class="nav-link" href="{{ route('resellers.index') }}">Resellers</a>
+                            <a class="nav-link" href="{{ route('resellers.index') }}">Companies</a>
                         @endif
                     @endauth
                     @guest
-                        <a class="nav-link" href="{{ route('resellers.index') }}">Resellers</a>
+                        <a class="nav-link" href="{{ route('resellers.index') }}">Companies</a>
                     @endguest
                 </li>
                 <li

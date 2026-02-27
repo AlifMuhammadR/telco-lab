@@ -419,14 +419,14 @@
 
     <div class="company-section py-5">
         <div class="container">
-            <h2 class="brand-title mb-4">Daftar Reseller per Vendor</h2>
+            <h2 class="brand-title mb-4">Daftar Perusahaan per Vendor</h2>
 
             <!-- Tombol Aksi (hanya untuk admin) -->
             @auth
                 @if (Auth::user()->role === 'admin')
                     <div class="action-group mb-4">
                         <button class="btn-action btn-primary" data-bs-toggle="modal" data-bs-target="#addResellerModal">
-                            <i class="fas fa-plus-circle me-2"></i> Tambah Reseller
+                            <i class="fas fa-plus-circle me-2"></i> Tambah Perusahaan
                         </button>
                         <button class="btn-action btn-outline" data-bs-toggle="modal" data-bs-target="#createContactModal">
                             <i class="fas fa-address-book me-2"></i> Tambah Kontak
