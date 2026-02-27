@@ -20,6 +20,7 @@
             margin-bottom: 40px;
             border: 1px solid #edf2f7;
             position: relative;
+            /* untuk positioning tombol */
         }
 
         /* Tombol aksi di pojok kanan atas */
@@ -224,7 +225,7 @@
             background: #f9fbfd;
             border-radius: 16px;
             border: 1px solid #edf2f7;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             cursor: pointer;
         }
 
@@ -280,13 +281,6 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .contact-chip:hover {
-            background: #3b5d50;
-            color: white;
-            border-color: #3b5d50;
         }
 
         .contact-chip i {
@@ -319,8 +313,9 @@
             text-align: right;
         }
 
-        /* Modal styles dengan animasi smooth */
+        /* Modal styles */
         .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -328,17 +323,12 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
-            display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
         .modal.active {
-            opacity: 1;
-            visibility: visible;
+            display: flex;
         }
 
         .modal-content {
@@ -350,12 +340,6 @@
             overflow-y: auto;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
             border: 1px solid #edf2f7;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .modal.active .modal-content {
-            transform: scale(1);
         }
 
         .modal-header {
@@ -390,7 +374,6 @@
         .modal-close:hover {
             background: #3b5d50;
             color: white;
-            transform: scale(1.05);
         }
 
         .modal-body {
@@ -440,13 +423,6 @@
             border-radius: 16px;
             padding: 16px;
             border: 1px solid #edf2f7;
-            transition: all 0.2s ease;
-        }
-
-        .contact-person-card:hover {
-            background: white;
-            border-color: #3b5d50;
-            transform: translateY(-2px);
         }
 
         .contact-person-name {
@@ -527,6 +503,24 @@
     <div class="product-detail-section">
         <div class="container">
             <div class="product-detail-card">
+                @auth
+                    @if (Auth::user()->role === 'admin')
+                        <div class="header-actions">
+                            <a href="{{ route('admin.products.edit', $product->id) }}" class="btn-icon edit" title="Edit Produk">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
+                                onsubmit="return confirm('Yakin ingin menghapus produk ini?')" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-icon delete" title="Hapus Produk">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+                @endauth
+
                 <div class="row g-0">
                     <div class="col-lg-5">
                         <div class="product-gallery">
@@ -551,34 +545,34 @@
                                     <span class="info-label">Kategori</span>
                                     <span class="info-value">{{ $product->category ?? '-' }}</span>
                                 </div>
+                                <!-- Jika ada field lain, bisa ditambahkan di sini -->
                             </div>
 
                             <div class="product-description">
                                 <div class="description-title">Deskripsi Produk</div>
-                                <div class="description-content">
-                                    {!! nl2br(e($product->description)) !!}
+                                <div class="description-content" id="productDescription">
+                                    @php
+                                        $rawDesc = $product->description ?? ''; // teks mentah tanpa format
+                                        $formattedDesc = nl2br(e($rawDesc)); // teks dengan <br> untuk tampilan
+                                        $short = Str::limit($rawDesc, 50, '...'); // potong teks mentah
+                                        $shortFormatted = nl2br(e($short)); // format teks pendek
+                                    @endphp
+                                    <span id="shortDesc">{!! $shortFormatted !!}</span>
+                                    @if (strlen($rawDesc) > 200)
+                                        <span id="fullDesc" style="display: none;">{!! $formattedDesc !!}</span>
+                                        <a href="javascript:void(0);" class="read-more" onclick="toggleReadMore()"
+                                            id="readMoreLink">Lihat Selengkapnya</a>
+                                    @else
+                                        {!! $formattedDesc !!}
+                                    @endif
                                 </div>
                             </div>
-
-                            @if ($product->companies->count() > 0)
-                                <div class="mt-4">
-                                    <h4>Tersedia di:</h4>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @foreach ($product->companies as $company)
-                                            <span class="badge bg-light text-dark p-2">
-                                                <img src="{{ $company->logo ? asset('storage/' . $company->logo) : asset('assets/images/placeholder.png') }}"
-                                                    width="20" height="20" class="me-1"> {{ $company->name }}
-                                            </span>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Vendor Section (Perusahaan Penyedia) dengan modal kontak -->
+            <!-- Vendor Section (Perusahaan Penyedia) -->
             <div class="vendor-section">
                 <h3 class="vendor-section-title">Perusahaan Penyedia</h3>
                 <div class="vendor-grid">
@@ -627,6 +621,21 @@
     </div>
 
     <script>
+        function toggleReadMore() {
+            var shortDesc = document.getElementById("shortDesc");
+            var fullDesc = document.getElementById("fullDesc");
+            var linkText = document.getElementById("readMoreLink");
+
+            if (fullDesc.style.display === "none") {
+                shortDesc.style.display = "none";
+                fullDesc.style.display = "inline";
+                linkText.innerHTML = "Lihat Lebih Sedikit";
+            } else {
+                shortDesc.style.display = "inline";
+                fullDesc.style.display = "none";
+                linkText.innerHTML = "Lihat Selengkapnya";
+            }
+        }
         // Data perusahaan dari database (termasuk kontak)
         const companiesData = @json($product->companies->load('contacts'));
 
@@ -685,6 +694,5 @@
         }
     </script>
 
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 @endsection

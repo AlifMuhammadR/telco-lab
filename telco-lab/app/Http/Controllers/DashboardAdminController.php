@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Vendor;
 use Illuminate\Http\Request;
 
 class DashboardAdminController extends Controller
@@ -11,8 +12,10 @@ class DashboardAdminController extends Controller
      */
     public function index()
     {
+        $vendors = Vendor::all(); // ambil semua vendor dari database
         return view('admin.dashboard', [
-            'title' => 'Admin - Dashboard'
+            'title' => 'Admin - Dashboard',
+            'vendors' => $vendors
         ]);
     }
 

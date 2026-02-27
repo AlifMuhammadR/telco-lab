@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Vendor;
 use Illuminate\Http\Request;
 
 class DashboardUser extends Controller
@@ -11,8 +12,10 @@ class DashboardUser extends Controller
      */
     public function index()
     {
+        $vendors = Vendor::all();
         return view('user.dashboard', [
-            'title' => 'User - Dashboard'
+            'title' => 'User - Dashboard',
+            'vendors' => $vendors
         ]);
     }
 

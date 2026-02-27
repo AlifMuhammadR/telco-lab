@@ -2,65 +2,152 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
+use App\Models\Contact;
+use App\Models\Product;
+use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ResellerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Untuk user biasa: menampilkan daftar reseller
     public function index()
     {
+        // Ambil semua vendor beserta produk dan perusahaan terkait
+        $vendors = Vendor::with('products.companies')->get();
+
+        $vendorCompanies = [];
+        foreach ($vendors as $vendor) {
+            // Ambil semua perusahaan yang terkait dengan produk vendor ini, lalu unique
+            $companies = $vendor->products->flatMap->companies->unique('id');
+            if ($companies->isNotEmpty()) {
+                $vendorCompanies[] = [
+                    'vendor' => $vendor,
+                    'companies' => $companies
+                ];
+            }
+        }
+
         return view('user.resellers', [
-            'title' => 'Resellers'
+            'title' => 'Daftar Reseller',
+            'vendorCompanies' => $vendorCompanies
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // Untuk user biasa: detail reseller
+    public function show($id)
     {
-        //
+        $company = Company::with(['contacts', 'products.vendor'])->findOrFail($id);
+        return view('user.resellers-detail', compact('company'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Untuk admin: daftar reseller
+    public function indexAdmin()
+    {
+        $vendors = Vendor::with('products.companies')->get();
+        $vendorCompanies = [];
+        $companies = Company::all(); // ambil semua perusahaan
+        foreach ($vendors as $vendor) {
+            $companies = $vendor->products->flatMap->companies->unique('id');
+            if ($companies->isNotEmpty()) {
+                $vendorCompanies[] = [
+                    'vendor' => $vendor,
+                    'companies' => $companies
+                ];
+            }
+        }
+        return view('admin.resellers', [
+            'title' => 'Daftar Reseller',
+            'vendorCompanies' => $vendorCompanies,
+            'companies' => $companies // kirim semua perusahaan ke view
+        ]);
+    }
+
+    // Untuk admin: detail reseller
+    public function showAdmin($id)
+    {
+        $company = Company::with(['contacts', 'products.vendor', 'products.companies'])->findOrFail($id);
+        return view('admin.resellers-detail', [
+            'title' => 'Detail Reseller',
+            'company' => $company
+        ]);
+    }
+
+    // Menyimpan data baru (admin)
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'logo' => 'nullable|image|max:2048',
+            'location' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('companies', 'public');
+        }
+
+        Company::create([
+            'name' => $request->name,
+            'logo' => $logoPath,
+            'location' => $request->location,
+            'description' => $request->description,
+        ]);
+
+        return redirect()->route('admin.resellers.index')->with('success', 'Reseller berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Menampilkan form edit
+    public function edit($id)
     {
-        //
+        $company = Company::findOrFail($id);
+        return view('admin.resellers-edit', [
+            'title' => 'Edit Reseller',
+            'company' => $company
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Update data
+    public function update(Request $request, $id)
     {
-        //
+        $company = Company::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'logo' => 'nullable|image|max:2048',
+            'location' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'location' => $request->location,
+            'description' => $request->description,
+        ];
+
+        if ($request->hasFile('logo')) {
+            if ($company->logo) {
+                Storage::disk('public')->delete($company->logo);
+            }
+            $data['logo'] = $request->file('logo')->store('companies', 'public');
+        }
+
+        $company->update($data);
+
+        return redirect()->route('admin.resellers.index')->with('success', 'Reseller berhasil diupdate.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Hapus data
+    public function destroy($id)
     {
-        //
-    }
+        $company = Company::findOrFail($id);
+        if ($company->logo) {
+            Storage::disk('public')->delete($company->logo);
+        }
+        $company->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('admin.resellers.index')->with('success', 'Reseller berhasil dihapus.');
     }
 }

@@ -248,18 +248,167 @@
         .first-vendor-header {
             margin-top: 0;
         }
+
+        .action-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-action {
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .btn-action.btn-primary {
+            background: #3b5d50;
+            color: white;
+            border-color: #3b5d50;
+        }
+
+        .btn-action.btn-primary:hover {
+            background: #234237;
+            border-color: #234237;
+        }
+
+        .btn-action.btn-outline {
+            background: transparent;
+            color: #3b5d50;
+            border-color: #3b5d50;
+        }
+
+        .btn-action.btn-outline:hover {
+            background: #3b5d50;
+            color: white;
+        }
+
+        .modal-classic {
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+        }
+
+        .modal-header-classic {
+            border-bottom: 1px solid #edf2f7;
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-header-classic .modal-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control-classic {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 0.75rem 1rem;
+            transition: border 0.2s;
+        }
+
+        .form-control-classic:focus {
+            border-color: #3b5d50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 93, 80, 0.1);
+        }
+
+        .file-input {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-label {
+            padding: 0.5rem 1.5rem;
+            background: #f1f5f9;
+            color: #334155;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .file-label:hover {
+            background: #e2e8f0;
+        }
+
+        .file-name {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-classic {
+            padding: 0.6rem 2rem;
+            border-radius: 40px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-accent {
+            background: #3b5d50;
+            color: white;
+            border: 1px solid #3b5d50;
+        }
+
+        .btn-accent:hover {
+            background: #234237;
+            border-color: #234237;
+        }
+
+        .btn-outline-secondary {
+            background: transparent;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .text-accent {
+            color: #3b5d50;
+        }
     </style>
 
     <div class="company-section py-5">
         <div class="container">
             <h2 class="brand-title mb-4">Daftar Reseller per Vendor</h2>
 
-            <!-- Tombol Tambah Reseller (hanya untuk admin) -->
+            <!-- Tombol Aksi (hanya untuk admin) -->
             @auth
                 @if (Auth::user()->role === 'admin')
-                    <div class="mb-3">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addResellerModal">
-                            <i class="fas fa-plus"></i> Tambah Reseller
+                    <div class="action-group mb-4">
+                        <button class="btn-action btn-primary" data-bs-toggle="modal" data-bs-target="#addResellerModal">
+                            <i class="fas fa-plus-circle me-2"></i> Tambah Reseller
+                        </button>
+                        <button class="btn-action btn-outline" data-bs-toggle="modal" data-bs-target="#createContactModal">
+                            <i class="fas fa-address-book me-2"></i> Tambah Kontak
                         </button>
                     </div>
                 @endif
@@ -300,8 +449,8 @@
                                     @endif
                                     <div class="d-flex justify-content-between align-items-center mt-2">
                                         <small class="text-muted">Klik untuk detail lengkap</small>
-                                        <a href="{{ route('resellers.show', $company->id) }}" class="btn btn-sm btn-light"
-                                            onclick="event.stopPropagation();">
+                                        <a href="{{ route('admin.resellers.show', $company->id) }}"
+                                            class="btn btn-sm btn-light" onclick="event.stopPropagation();">
                                             <i class="fas fa-eye"></i> Detail
                                         </a>
                                     </div>
@@ -349,58 +498,124 @@
             </div>
         </div>
 
-        <!-- Modal Tambah Reseller (sama seperti sebelumnya) -->
+        <!-- Modal Tambah Reseller (clean design) -->
         @auth
             @if (Auth::user()->role === 'admin')
-                <div class="modal fade" id="addResellerModal" tabindex="-1" aria-labelledby="addResellerModalLabel"
-                    aria-hidden="true">
+                <!-- Modal Tambah Reseller (clean klasik) -->
+                <div class="modal fade" id="addResellerModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <form method="POST" action="{{ route('admin.resellers.store') }}" enctype="multipart/form-data">
-                                @csrf
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="addResellerModalLabel">
-                                        <i class="fas fa-plus-circle text-primary me-2"></i>Tambah Reseller Baru
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label for="name" class="form-label">name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="modal-content modal-classic">
+                            <div class="modal-header modal-header-classic">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-plus-circle text-accent me-2"></i>Tambah Reseller Baru
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.resellers.store') }}" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="name" class="form-label">name Perusahaan <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-classic" id="name"
+                                            name="name" required>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="form-group">
                                         <label for="logo" class="form-label">Logo</label>
-                                        <div>
-                                            <label for="logo" class="btn btn-outline-secondary">
+                                        <div class="file-input">
+                                            <label for="logo" class="file-label">
                                                 <i class="fas fa-cloud-upload-alt me-2"></i>Pilih File
                                             </label>
                                             <input type="file" class="d-none" id="logo" name="logo" accept="image/*"
-                                                onchange="updateFileName(this)">
-                                            <span id="file-name" class="ms-2 text-muted">Tidak ada file dipilih</span>
+                                                onchange="updateFileName(this, 'file-name')">
+                                            <span id="file-name" class="file-name">Tidak ada file dipilih</span>
                                         </div>
-                                        <small class="text-muted">Format: JPG, PNG, SVG. Maks 2MB.</small>
+                                        <small class="form-text text-muted">Format: JPG, PNG, SVG. Maks 2MB.</small>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="form-group">
                                         <label for="location" class="form-label">Lokasi</label>
-                                        <input type="text" class="form-control" id="location" name="location">
+                                        <input type="text" class="form-control form-control-classic" id="location"
+                                            name="location">
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="form-group">
                                         <label for="description" class="form-label">Deskripsi</label>
-                                        <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+                                        <textarea class="form-control form-control-classic" id="description" name="description" rows="3"></textarea>
                                     </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-secondary"
-                                        data-bs-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i>Simpan
-                                    </button>
-                                </div>
-                            </form>
+                                    <div class="modal-actions">
+                                        <button type="button" class="btn btn-outline-secondary btn-classic"
+                                            data-bs-dismiss="modal">Batal</button>
+                                        <button type="submit" class="btn btn-accent btn-classic">
+                                            <i class="fas fa-save me-2"></i>Simpan
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Modal Tambah Kontak (clean klasik) -->
+                <div class="modal fade" id="createContactModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content modal-classic">
+                            <div class="modal-header modal-header-classic">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-address-book text-accent me-2"></i>Tambah Kontak Baru
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.contacts.store') }}">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="create_name" class="form-label">name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-classic" id="create_name"
+                                            name="name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create_jabatan" class="form-label">Jabatan</label>
+                                        <input type="text" class="form-control form-control-classic" id="create_jabatan"
+                                            name="jabatan">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create_company_id" class="form-label">Perusahaan <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-control form-control-classic" id="create_company_id"
+                                            name="id_company" required>
+                                            <option value="">-- Pilih Perusahaan --</option>
+                                            @foreach ($companies as $company)
+                                                <option value="{{ $company->id }}">{{ $company->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create_no_hp" class="form-label">No HP</label>
+                                        <input type="text" class="form-control form-control-classic" id="create_no_hp"
+                                            name="no_hp">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create_email" class="form-label">Email</label>
+                                        <input type="email" class="form-control form-control-classic" id="create_email"
+                                            name="email">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create_description" class="form-label">Deskripsi</label>
+                                        <textarea class="form-control form-control-classic" id="create_description" name="description" rows="2"></textarea>
+                                    </div>
+                                    <div class="modal-actions">
+                                        <button type="button" class="btn btn-outline-secondary btn-classic"
+                                            data-bs-dismiss="modal">Batal</button>
+                                        <button type="submit" class="btn btn-accent btn-classic">
+                                            <i class="fas fa-save me-2"></i>Simpan
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <script>
                     function updateFileName(input) {
                         const fileName = input.files[0]?.name || 'Tidak ada file dipilih';

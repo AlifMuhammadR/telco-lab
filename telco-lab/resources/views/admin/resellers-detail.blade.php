@@ -390,33 +390,72 @@
 
     <div class="reseller-detail-section">
         <div class="container">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            <!-- Header Perusahaan dengan tombol aksi di dalamnya -->
             <div class="reseller-header-card">
+                @auth
+                    @if (Auth::user()->role === 'admin')
+                        <div class="header-actions">
+                            <button class="btn-icon edit" data-bs-toggle="modal" data-bs-target="#editCompanyModal"
+                                title="Edit Perusahaan">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form action="{{ route('admin.resellers.destroy', $company->id) }}" method="POST"
+                                onsubmit="return confirm('Yakin ingin menghapus perusahaan ini? Semua data terkait (kontak, relasi produk) akan ikut terhapus.')"
+                                style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-icon delete" title="Hapus Perusahaan">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+                @endauth
+
                 <div class="reseller-header-content">
                     <div class="reseller-logo-wrapper">
                         <img src="{{ $company->logo ? asset('storage/' . $company->logo) : asset('assets/images/placeholder.png') }}"
-                            class="reseller-logo-large">
+                            alt="{{ $company->name }}" class="reseller-logo-large">
                     </div>
                     <div class="reseller-info">
                         <h1 class="reseller-name">{{ $company->name }}</h1>
-                        <div class="reseller-location"><i class="fas fa-map-marker-alt"></i>
-                            {{ $company->location ?? 'Lokasi tidak tersedia' }}</div>
-                        <p class="reseller-description">{{ $company->description ?? 'Tidak ada deskripsi' }}</p>
+                        <div class="reseller-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ $company->location ?? 'Lokasi tidak tersedia' }}</span>
+                        </div>
+                        <p class="reseller-description">
+                            {{ $company->description ?? 'Tidak ada deskripsi' }}
+                        </p>
                     </div>
                 </div>
             </div>
 
+            <!-- Kontak Person -->
             <div class="contact-section">
                 <h3 class="section-title">Kontak Person</h3>
                 <div class="contact-grid">
                     @forelse($company->contacts as $contact)
                         <div class="contact-card">
-                            <div class="contact-icon"><i class="fas fa-user-tie"></i></div>
+                            <div class="contact-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
                             <div class="contact-info">
                                 <div class="contact-name">{{ $contact->name }}</div>
                                 <div class="contact-position">{{ $contact->jabatan ?? '-' }}</div>
-                                <div class="contact-detail"><i class="fas fa-phone-alt"></i> {{ $contact->no_hp ?? '-' }}
+                                <div class="contact-detail">
+                                    <i class="fas fa-phone-alt"></i>
+                                    <span>{{ $contact->no_hp ?? '-' }}</span>
                                 </div>
-                                <div class="contact-detail"><i class="fas fa-envelope"></i> {{ $contact->email ?? '-' }}
+                                <div class="contact-detail">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ $contact->email ?? '-' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -448,10 +487,19 @@
                                 <div class="product-price" hidden>${{ number_format($product->price, 2) }}</div>
                                 <div class="product-footer">
                                     <span class="availability">Tersedia</span>
-                                    <a href="{{ route('products.show', $product->id) }}" class="btn-detail-icon"
-                                        title="Lihat detail">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </a>
+                                    @auth
+                                        @if (Auth::user()->role === 'admin')
+                                            <a href="{{ route('admin.products.show', $product->id) }}" class="btn-detail-icon"
+                                                title="Lihat detail">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        @else
+                                            <a href="{{ route('products.show', $product->id) }}" class="btn-detail-icon"
+                                                title="Lihat detail">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        @endif
+                                    @endauth
                                 </div>
                             </div>
                         </div>
@@ -462,6 +510,73 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Edit Company -->
+    @auth
+        @if (Auth::user()->role === 'admin')
+            <div class="modal fade" id="editCompanyModal" tabindex="-1" aria-labelledby="editCompanyModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form method="POST" action="{{ route('admin.resellers.update', $company->id) }}"
+                            enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editCompanyModalLabel">
+                                    <i class="fas fa-edit text-primary me-2"></i>Edit Reseller
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="edit-name" class="form-label">name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit-name" name="name"
+                                        value="{{ $company->name }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-logo" class="form-label">Logo</label>
+                                    <div>
+                                        <label for="edit-logo" class="btn btn-outline-secondary">
+                                            <i class="fas fa-cloud-upload-alt me-2"></i>Pilih File
+                                        </label>
+                                        <input type="file" class="d-none" id="edit-logo" name="logo" accept="image/*"
+                                            onchange="updateEditFileName(this)">
+                                        <span id="edit-file-name" class="ms-2 text-muted">Tidak ada file dipilih</span>
+                                    </div>
+                                    <small class="text-muted">Format: JPG, PNG, SVG. Maks 2MB. Biarkan kosong jika tidak ingin
+                                        mengubah.</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-location" class="form-label">Lokasi</label>
+                                    <input type="text" class="form-control" id="edit-location" name="location"
+                                        value="{{ $company->location }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-description" class="form-label">Deskripsi</label>
+                                    <textarea class="form-control" id="edit-description" name="description" rows="4">{{ $company->description }}</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary"
+                                    data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Simpan Perubahan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function updateEditFileName(input) {
+                    const fileName = input.files[0]?.name || 'Tidak ada file dipilih';
+                    document.getElementById('edit-file-name').textContent = fileName;
+                }
+            </script>
+        @endif
+    @endauth
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

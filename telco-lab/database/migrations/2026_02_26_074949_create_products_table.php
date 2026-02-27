@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2)->default(0.00);
             $table->unsignedBigInteger('id_vendor')->nullable();
             $table->foreign('id_vendor')->references('id')->on('vendors')->onDelete('cascade')->onUpdate('cascade');
             $table->string('category')->nullable();

@@ -7,6 +7,7 @@
 @endsection
 @section('content')
     <style>
+        /* Masukkan CSS dari contoh */
         .products-section {
             padding: 60px 0;
             background: #f8fafc;
@@ -14,6 +15,10 @@
 
         .section-header {
             margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .section-title {
@@ -25,16 +30,15 @@
             border-bottom: 2px solid #3b5d50;
             display: inline-block;
             letter-spacing: -0.02em;
+            margin-bottom: 0;
         }
 
-        /* Grid produk */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 30px;
         }
 
-        /* Kartu produk dengan gaya klasik */
         .product-card {
             background: white;
             border-radius: 16px;
@@ -121,7 +125,6 @@
             margin-bottom: 16px;
         }
 
-        /* Provider logos */
         .provider-section {
             margin: 0 0 16px 0;
             display: flex;
@@ -190,80 +193,137 @@
             transform: scale(1.05);
         }
 
-        .availability {
-            font-size: 0.75rem;
-            color: #3b5d50;
-            background: #e8f0ed;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-weight: 500;
+        .btn-edit-icon {
+            color: #94a3b8;
+            transition: all 0.2s;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f1f5f9;
+            font-size: 0.9rem;
+            text-decoration: none;
         }
 
-        /* Responsive */
+        .btn-edit-icon:hover {
+            background: #fbbf24;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .btn-delete-icon {
+            color: #94a3b8;
+            transition: all 0.2s;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f1f5f9;
+            font-size: 0.9rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-delete-icon:hover {
+            background: #ef4444;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
         @media (max-width: 768px) {
             .product-grid {
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
                 gap: 20px;
             }
-
-            .product-image-wrapper {
-                padding: 16px;
-            }
-
-            .product-info {
-                padding: 16px;
-            }
-
-            .provider-logo {
-                width: 32px;
-                height: 32px;
-            }
         }
     </style>
+
     <div class="products-section">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Daftar Produk</h2>
+                <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tambah Produk
+                </a>
             </div>
+
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
 
             <div class="product-grid">
                 @forelse($products as $product)
-                    <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none">
-                        <div class="product-card">
-                            <div class="product-image-wrapper">
-                                <img src="{{ $product->image ? asset('storage/'.$product->image) : asset('assets/images/placeholder.png') }}" class="product-image" alt="{{ $product->name }}">
+                    <div class="product-card" onclick="window.location='{{ route('admin.products.show', $product->id) }}'">
+                        <div class="product-image-wrapper">
+                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/images/placeholder.png') }}"
+                                class="product-image" alt="{{ $product->name }}">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">{{ $product->name }}</h3>
+                            <div class="product-brand">
+                                @if ($product->vendor)
+                                    <img src="{{ $product->vendor->logo ? asset('storage/' . $product->vendor->logo) : asset('assets/images/placeholder.png') }}"
+                                        class="brand-logo" alt="{{ $product->vendor->name }}">
+                                    <span class="brand-name">{{ $product->vendor->name }}</span>
+                                @else
+                                    <span class="brand-name">-</span>
+                                @endif
                             </div>
-                            <div class="product-info">
-                                <h3 class="product-title">{{ $product->name }}</h3>
-                                <div class="product-brand">
-                                    @if($product->vendor)
-                                        <img src="{{ $product->vendor->logo ? asset('storage/'.$product->vendor->logo) : asset('assets/images/placeholder.png') }}" class="brand-logo" alt="{{ $product->vendor->name }}">
-                                        <span class="brand-name">{{ $product->vendor->name }}</span>
-                                    @endif
-                                </div>
-                                <div class="product-price" hidden>${{ number_format($product->price, 2) }}</div>
+                            <div class="product-price" hidden>${{ number_format($product->price, 2) }}</div>
+
+                            @if ($product->companies->count() > 0)
                                 <div class="provider-section">
                                     <span class="provider-label">Tersedia di:</span>
                                     <div class="provider-logos">
-                                        @forelse($product->companies as $company)
-                                            <img src="{{ $company->logo ? asset('storage/'.$company->logo) : asset('assets/images/placeholder.png') }}" class="provider-logo" alt="{{ $company->name }}" title="{{ $company->name }}">
-                                        @empty
-                                            <span class="text-muted">-</span>
-                                        @endforelse
+                                        @foreach ($product->companies as $company)
+                                            <img src="{{ $company->logo ? asset('storage/' . $company->logo) : asset('assets/images/placeholder.png') }}"
+                                                class="provider-logo" alt="{{ $company->name }}"
+                                                title="{{ $company->name }}">
+                                        @endforeach
                                     </div>
                                 </div>
-                                <div class="product-footer">
-                                    <span class="availability">Detail</span>
-                                    <span class="btn-detail-icon">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </span>
+                            @endif
+
+                            <div class="product-footer">
+                                <span class="availability">Tersedia</span>
+                                <div class="action-buttons">
+                                    <a href="{{ route('admin.products.show', $product->id) }}" class="btn-detail-icon"
+                                        title="Detail" onclick="event.stopPropagation();">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('admin.products.edit', $product->id) }}" class="btn-edit-icon"
+                                        title="Edit" onclick="event.stopPropagation();">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
+                                        style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-delete-icon" title="Hapus"
+                                            onclick="event.stopPropagation(); return confirm('Yakin ingin menghapus?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 @empty
                     <div class="col-12 text-center py-5">
-                        <p class="text-muted">Belum ada produk tersedia.</p>
+                        <p class="text-muted">Belum ada produk.</p>
                     </div>
                 @endforelse
             </div>
