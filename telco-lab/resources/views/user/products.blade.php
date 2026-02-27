@@ -3,7 +3,28 @@
     @include('master.navbar')
 @endsection
 @section('hero')
-    @include('master.hero')
+    <!-- Start Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-lg-5">
+                    <div class="intro-excerpt">
+                        <h1>About Us</h1>
+                        <p class="mb-4">Informasi perangkat jaringan (Network Devices) yang menyediakan data lengkap.
+                        </p>
+                        <p><a href="" class="btn btn-secondary me-2">Shop Now</a><a href="#"
+                                class="btn btn-white-outline">Explore</a></p>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="hero-img-wrap">
+                        <img src="{{ asset('assets/images/juniper.png') }}" class="img-fluid hero-device">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Hero Section -->
 @endsection
 @section('content')
     <style>
@@ -231,13 +252,15 @@
                     <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none">
                         <div class="product-card">
                             <div class="product-image-wrapper">
-                                <img src="{{ $product->image ? asset('storage/'.$product->image) : asset('assets/images/placeholder.png') }}" class="product-image" alt="{{ $product->name }}">
+                                <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/images/placeholder.png') }}"
+                                    class="product-image" alt="{{ $product->name }}">
                             </div>
                             <div class="product-info">
                                 <h3 class="product-title">{{ $product->name }}</h3>
                                 <div class="product-brand">
-                                    @if($product->vendor)
-                                        <img src="{{ $product->vendor->logo ? asset('storage/'.$product->vendor->logo) : asset('assets/images/placeholder.png') }}" class="brand-logo" alt="{{ $product->vendor->name }}">
+                                    @if ($product->vendor)
+                                        <img src="{{ $product->vendor->logo ? asset('storage/' . $product->vendor->logo) : asset('assets/images/placeholder.png') }}"
+                                            class="brand-logo" alt="{{ $product->vendor->name }}">
                                         <span class="brand-name">{{ $product->vendor->name }}</span>
                                     @endif
                                 </div>
@@ -246,7 +269,9 @@
                                     <span class="provider-label">Tersedia di:</span>
                                     <div class="provider-logos">
                                         @forelse($product->companies as $company)
-                                            <img src="{{ $company->logo ? asset('storage/'.$company->logo) : asset('assets/images/placeholder.png') }}" class="provider-logo" alt="{{ $company->name }}" title="{{ $company->name }}">
+                                            <img src="{{ $company->logo ? asset('storage/' . $company->logo) : asset('assets/images/placeholder.png') }}"
+                                                class="provider-logo" alt="{{ $company->name }}"
+                                                title="{{ $company->name }}">
                                         @empty
                                             <span class="text-muted">-</span>
                                         @endforelse
